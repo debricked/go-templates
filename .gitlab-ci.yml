@@ -1,0 +1,25 @@
+stages:
+- build
+- scan
+
+build:
+  stage: build
+  image: go
+
+  script: 
+  - |
+      printf "$(go mod graph)\n\n$(go list -mod=readonly -e -m all)" > .debricked-go-dependencies.txt
+
+  artifacts:
+    paths:
+    - .debricked-go-dependencies.txt
+    expire_in: 1 day
+
+debricked:
+  stage: scan
+  image:
+    name: debricked/debricked-scan
+    entrypoint: ["/gitlab-ci.sh"]
+  script: echo "Done"
+  variables:
+    DEBRICKED_TOKEN: $DEBRICKED_TOKEN
